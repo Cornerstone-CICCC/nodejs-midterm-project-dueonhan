@@ -1,0 +1,156 @@
+---
+import Layout from "../layouts/Layout.astro"
+
+const PageTitle = "SignUp"
+
+---
+
+<Layout title={PageTitle}>
+	<main class="Signup-tontainer">
+		<div class="bgi">
+			<div class="overlay"></div>
+			<form method="POST" class="signup-form">
+				<h2>SignUp</h2>
+				<p>Create your account to get started.</p>
+
+				<div class="form-group">
+					<label for="userid">Userid</label>
+					<input
+					type="text"
+					id="userid"
+					name="userid"
+					required
+					/>
+				</div>
+				
+				<div class="form-group">
+					<label for="password">Password</label>
+					<input
+					type="password"
+					id="password"
+					name="password"
+					required
+					/>
+				</div>
+
+                <div class="form-group">
+					<label for="password2">Confirm Password</label>
+					<input
+					type="password"
+					id="password2"
+					name="password2"
+					required
+					/>
+				</div>
+
+                <div class="form-group name-group">
+                    <div class="name-field">
+                        <label for="firstname">First Name</label>
+                        <input type="text" id="firstname" name="firstname" required>
+                    </div>
+
+                    <div class="name-field">
+                        <label for="middlename">Middle Name</label>
+                        <input type="text" id="middlename" name="middlename">
+                    </div>
+
+                    <div class="name-field">
+                        <label for="lastname">Last Name</label>
+                        <input type="text" id="lastname" name="lastname" required>
+                    </div>
+                </div>
+
+				  <div class="form-group">
+                    <label for="dateofbirth">Date of Birth</label>
+                    <input type="date" id="dateofbirth" name="dateofbirth" required>
+                </div>
+
+                  <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+                </div>
+
+                  <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="+1 123-456-7890" required>
+                </div>
+
+                <button type="submit" class="sighup-btn">Submit</button>
+			</form>
+		</div>
+
+	</main>
+    <script>
+    const form = document.querySelector(".signup-form") as HTMLFormElement;
+    const phoneNumberInput = document.getElementById('phoneNumber') as HTMLFormElement;
+    if (form) {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const rawPhoneNumber = phoneNumberInput.value;
+            const normalizedNumber = normalizeCanadianPhoneNumber(rawPhoneNumber);
+
+            if (normalizedNumber) {
+                phoneNumberInput.value = normalizedNumber;
+            } else {
+                e.preventDefault(); 
+                alert("Please enter a valid 10-digit phone number (e.g., 604-555-1234).");
+                phoneNumberInput.focus();
+            }
+
+            console.log("data", data)
+            const password = data.password;
+            const password2 = data.password2;
+
+            if (password !== password2) {
+                alert("Passwords do not match!");
+                console.error("Passwords do not match.");
+                return;
+            }
+
+            delete data.password2;
+
+            try {
+                const res = await fetch("http://localhost:3700/users/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                console.log("Server Response:", result);
+
+                
+                if (res.ok) {
+                    alert("Sign Up Successful! Please log in.");
+                    window.location.href = "/"; 
+                } else {
+                    alert(`Sign Up Failed: ${result.message || "Unknown error"}`);
+                }
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                alert("A network error occurred. Check server status.");
+            }
+        });
+    }
+
+    function normalizeCanadianPhoneNumber(phoneNumber: String) {
+        const cleaned = phoneNumber.replace(/\D/g, ''); 
+
+        
+        if (cleaned.length === 10) {
+            return cleaned;
+        } 
+        
+        else if (cleaned.length === 11 && cleaned.startsWith('1')) {
+            return cleaned.substring(1); 
+        }
+        
+        return null; 
+    }
+
+    
+</script>
+</Layout>

@@ -1,0 +1,822 @@
+---
+import Layout from "../layouts/Layout.astro"
+import Navbar from "../pages/partials/Navbar.astro"
+import Sidebar from "../pages/partials/Sidebar.astro"
+import Footer from "../pages/partials/Footer.astro"
+
+const sessionCookie = Astro.cookies.get("connect.sid");
+const PageTitle = "DashBoard"
+const SERVER_URL = "http://localhost:3700";
+
+// const sessionUsername = Astro.cookies.get("username");
+// if (!sessionUsername) {
+//   throw Astro.redirect("/login");
+// }
+
+let employees: any[] = [];
+try{
+    const response = await fetch(`${SERVER_URL}/emp/list`);
+    if(response.ok) {
+        const result = await response.json();
+        employees = result.data || [];
+    }else {
+        console.error(`Failed to fetch employee list: ${response.status}`);
+    }
+}catch (error){
+    console.error("Error fetching employee list:", error);
+}
+
+const employeesPerPage = 5;
+let totalPages = Math.ceil(employees.length / employeesPerPage);
+
+const clientData = {
+    employees: employees,
+    perPage: employeesPerPage,
+    totalPages: totalPages,
+};
+
+//const clientDataJSON = JSON.stringify(clientData);
+
+// if (!sessionCookie || !sessionCookie.value) {
+  
+ 
+//   const redirectScript = `
+//     <script>
+//       alert("Login required.");
+//       window.location.href = "/";
+//     </script>
+//   `;
+
+//   return new Response(redirectScript, {
+//       status: 200, 
+//       headers: { 'Content-Type': 'text/html' }
+//   });
+// }
+
+---
+
+<Layout title={PageTitle}>
+    <div class="main-layout" data-client-props='!{clientDataJSON}'>
+    <!--<div class="main-layout" data-client-props='${clientDataJSON}'>--> 
+        <div class="container-scroller">
+        <!-- partial:partials/_navbar.html -->
+        <Navbar/>
+        <!-- partial -->
+        <div class="container-fluid page-body-wrapper">
+            <Sidebar/>
+            <!-- partial -->
+            <div class="main-panel">
+                <div class="content-wrapper">
+                    <div class="row">
+                    <div class="col-md-12 grid-margin stretch-card">
+                        <div class="card">
+                        <div class="card-body">
+                            <div class="d-sm-flex align-items-center mb-4">
+                            <h4 class="card-title mb-sm-0">Employees List</h4>
+                            <!-- <a href="#" class="text-dark ms-auto mb-3 mb-sm-0"> Add Employee</a>-->
+                            <button type="button" class="btn btn-inverse-primary btn-fw ms-auto" data-bs-toggle="modal" data-bs-target="#formModal" >
+                                Add Employee
+                            </button>
+                            </div>
+                            <div class="table-responsive border rounded p-1">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Employee Name</th>
+                                    <th>Date of Birth</th>
+                                    <th>Email</th>
+                                    <th>Number</th>
+                                    <th>Start Date</th>
+                                    <th>Position</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                
+                                </tbody>
+                            </table>
+                            </div>
+                            <!--
+                            <div class="d-flex mt-4 flex-wrap align-items-center">
+                            <p class="text-muted mb-sm-0">Showing 1 to 10 of 57 entries</p>
+                            <nav class="ms-auto">
+                                <ul class="pagination separated pagination-info mb-sm-0">
+                                <li class="page-item"><a href="#" class="page-link"><i class="icon-arrow-left"></i></a></li>
+                                <li class="page-item active"><a href="#" class="page-link">1</a></li>
+                                <li class="page-item"><a href="#" class="page-link">2</a></li>
+                                <li class="page-item"><a href="#" class="page-link">3</a></li>
+                                <li class="page-item"><a href="#" class="page-link">4</a></li>
+                                <li class="page-item"><a href="#" class="page-link"><i class="icon-arrow-right"></i></a></li>
+                                </ul>
+                            </nav>
+                            </div>
+                            -->
+                                <div class="d-flex mt-4 flex-wrap align-items-center">
+                                    <p class="text-muted mb-sm-0">Showing 0 to 0 of 0 entries</p>
+                                    <nav class="ms-auto">
+                                        <ul class="pagination separated pagination-info mb-sm-0"></ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:partials/_footer.html -->
+            <Footer/>
+            <!-- partial -->
+            </div>
+            <!-- main-panel ends -->
+        </div>
+        <!-- page-body-wrapper ends -->
+        </div>
+    </div>
+    
+
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formModalLabel">Employee Register Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" >
+                <div class="card">
+                    <div class="card-body" >
+                    <form class="employee-add" id="employeeForm" method="POST">
+                        <div class="form-group">
+                        <label for="exampleInputUsername1" style="color: #343A40;">Username</label>
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" />
+                            </div>
+
+                            <div class="col">
+                                <input type="text" class="form-control" id="middleName" name="middleName" placeholder="Middle Name" />
+                            </div>
+
+                            <div class="col">
+                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" />
+                            </div>
+                        </div>
+                        </div>
+                        
+                        <div class="form-group">
+                        <label style="color: #343A40;">Date of Birth</label>
+                            <div class="input-group date" id="dobPicker">
+                                <input type="text" class="form-control" id="dateOfbirth" name="dateOfbirth" placeholder="YYYY-MM-DD" />
+                                <span class="input-group-addon input-group-text">
+                                <i class="icon-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                        <label style="color: #343A40;">Start Date</label>
+                            <div class="input-group date" id="startDatePicker">
+                                <input type="text" class="form-control" id="startDate" name="startDate" placeholder="YYYY-MM-DD" />
+                                <span class="input-group-addon input-group-text">
+                                <i class="icon-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                        <label for="email" style="color: #343A40;">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-control"
+                            placeholder="Enter email"
+                            required
+                        />
+                        </div>
+
+                        <div class="form-group">
+                        <label for="phone" style="color: #343A40;">Phone Number</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phoneNumber"
+                            class="form-control"
+                            placeholder="778-123-4567"
+                            required
+                        />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="submit" form="employeeForm" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="viewModifyModal" tabindex="-1" aria-labelledby="viewModifyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewModifyModalLabel">Employee Information</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="viewModifyForm" class="employee-view-modify">
+          <input type="hidden" id="employeeId" name="id" />
+          
+          <!--
+          <div class="form-group">
+            <label style="color: #343A40;">Employee Number</label>
+            <input type="text" class="form-control" id="employeeNumber" readonly />
+          </div>
+        -->
+
+          <div class="form-group">
+            <label style="color: #343A40;">Username</label>
+            <div class="row">
+              <div class="col"><input type="text" id="viewFirstName" name="firstName" class="form-control" readonly /></div>
+              <div class="col"><input type="text" id="viewMiddleName" name="middleName" class="form-control" readonly /></div>
+              <div class="col"><input type="text" id="viewLastName" name="lastName" class="form-control" readonly /></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #343A40;">Date of Birth</label>
+            <div id="viewDobPicker" class="input-group date">
+              <input type="text" id="viewDateOfbirth"  class="form-control" name="dateOfbirth" readonly />
+              <span class="input-group-text"><i class="icon-calendar"></i></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #343A40;">Start Date</label>
+            <div id="viewStartDatePicker" class="input-group date">
+              <input type="text" id="viewStartDate" class="form-control" name="startDate" readonly />
+              <span class="input-group-text"><i class="icon-calendar"></i></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #343A40;">Email</label>
+            <input type="email" id="viewEmail" class="form-control" name="email" readonly />
+          </div>
+
+          <div class="form-group">
+            <label style="color: #343A40;">Phone Number</label>
+            <input type="tel" id="viewPhone" class="form-control" name="phoneNumber" readonly />
+          </div>
+
+          <div class="form-group">
+            <label style="color: #343A40;">Position</label>
+            <input type="text" id="viewPosition" class="form-control" name="position" readonly />
+          </div>
+
+          <div class="form-group">
+            <label style="color: #343A40;">Department</label>
+            <input type="text" id="viewDepartment" class="form-control" name="department" readonly />
+          </div>
+
+          <div class="form-group">
+            <!--
+            <label style="color: #343A40;">Status</label>
+            <input type="text" id="viewStatus" class="form-control" name="status" readonly />
+            -->
+            <div class="dropdown">
+            <label style="color: #343A40;">Status</label>
+            <input type="hidden" id="viewStatusInput" name="status" readonly/>
+
+            <br/>
+
+            <button
+                class="btn btn-primary dropdown-toggle"
+                type="button"
+                id="viewStatusDropdown"
+                data-bs-toggle="dropdown"
+                
+            >
+                Status
+            </button>
+
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="#" data-value="Employed">Employed</a>
+                <a class="dropdown-item" href="#" data-value="On Leave">On Leave</a>
+            </div>
+        </div>
+
+
+          
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="editButton" class="btn btn-warning">Edit</button>
+        <button type="button" id="deleteButton" class="btn btn-danger btn-fw">Delete</button>
+        <button type="submit" form="viewModifyForm" id="saveButton" class="btn btn-primary d-none">Save Changes</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<script type="module" is:inline>
+    const SERVER_URL = "http://localhost:3700";
+    
+    const mainLayoutDiv = document.querySelector('.main-layout');
+    const dataString = mainLayoutDiv.getAttribute('data-client-props');
+    
+    
+    let employeesData = [];
+    let employeesPerPage = 5;
+    let currentPage = 1;
+    let totalPages = 1;
+
+    if (dataString) {
+        try {
+            const clientProps = JSON.parse(dataString);
+            employeesData = clientProps.employees;
+            employeesPerPage = clientProps.perPage;
+            totalPages = clientProps.totalPages;
+        } catch (e) {
+            console.error("Failed to parse client data props:", e);
+        }
+    }
+
+    function normalizeCanadianPhoneNumber(phoneNumber) {
+        const cleaned = phoneNumber.replace(/\D/g, ''); 
+
+        
+        if (cleaned.length === 10) {
+            return cleaned;
+        } 
+        
+        else if (cleaned.length === 11 && cleaned.startsWith('1')) {
+            return cleaned.substring(1); 
+        }
+        
+        return null; 
+    }
+
+    function renderTable(page){
+            currentPage = page;
+            const start = (page-1)*employeesPerPage;
+            const end = start + employeesPerPage;
+            const paginated = employeesData.slice(start, end);
+
+            const tbody = document.querySelector('table tbody');
+            if(!tbody) return;
+
+            if(paginated.length === 0){
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">No employees found.</td></tr>';
+            } else {
+                tbody.innerHTML = paginated.map(e => `
+                <tr data-employee-id="${e.employeeNumber}">
+                    <td>${e.firstName} ${e.middleName} ${e.lastName}</td>
+                    <td>${e.dateOfbirth}</td>
+                    <td>${e.email}</td>
+                    <td>${e.phoneNumber}</td>
+                    <td>${e.startDate}</td>
+                    <td>${e.position || 'N/A'}</td>
+                    <td>${e.department || 'N/A'}</td>
+                    <td><div class="badge p-2 ${e.status==='Employed'?'badge-success':'badge-danger'}">${e.status || 'N/A'}</div></td>
+                </tr>
+                `).join('');
+        }
+
+
+            const infoText = document.querySelector('.text-muted.mb-sm-0');
+            if(infoText){
+                const showingStart = paginated.length > 0 ? start+1 : 0;
+                const showingEnd = start + paginated.length;
+                infoText.textContent = `Showing ${showingStart} to ${showingEnd} of ${employeesData.length} entries`;
+            }
+            rebindRowClickEvents();
+    }
+
+
+    function renderPagination() {
+        const pagination = document.querySelector('.pagination');
+        if(!pagination) return;
+
+        let html = '';
+
+        html += `<li class="page-item ${currentPage===1 ? 'disabled' : ''}">
+                    <a href="#" class="page-link" data-page="${currentPage-1}">
+                        <i class="icon-arrow-left"></i>
+                    </a>
+                </li>`;
+
+
+        for(let i=1; i<=totalPages; i++){
+            html += `<li class="page-item ${i===currentPage ? 'active':''}">
+                        <a href="#" class="page-link" data-page="${i}">${i}</a>
+                    </li>`;
+        }
+
+
+        html += `<li class="page-item ${currentPage===totalPages ? 'disabled' : ''}">
+                    <a href="#" class="page-link" data-page="${currentPage+1}">
+                        <i class="icon-arrow-right"></i>
+                    </a>
+                </li>`;
+
+        pagination.innerHTML = html;
+
+        pagination.querySelectorAll('a.page-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const page = Number(link.dataset.page);
+                if(page >= 1 && page <= totalPages){
+                    renderTable(page);
+                    renderPagination();
+                }
+            });
+        }); 
+    }
+    
+
+    
+
+    async function loadEmployeeData(employeeId){
+        
+        try{
+            const res = await fetch(`${SERVER_URL}/emp/${employeeId}`);
+            if(!res.ok){
+                alert("Employee data not found.");
+                return;
+            }
+            const result = await res.json();
+            console.log("Employee result:", result);
+            const employee = result.data;
+
+            document.getElementById('employeeId').value = employee.employeeNumber;
+            //document.getElementById('employeeNumber').value = employee.employeeNumber || 'N/A';
+            document.getElementById('viewFirstName').value = employee.firstName;
+            document.getElementById('viewMiddleName').value = employee.middleName;
+            document.getElementById('viewLastName').value = employee.lastName;
+            document.getElementById('viewDateOfbirth').value = employee.dateOfbirth;
+            document.getElementById('viewStartDate').value = employee.startDate;
+            document.getElementById('viewEmail').value = employee.email;
+            document.getElementById('viewPhone').value = employee.phoneNumber;
+            document.getElementById('viewDepartment').value = employee.department ? employee.department : "N/A";
+            document.getElementById('viewPosition').value = employee.position ? employee.position : "N/A";
+            //document.getElementById('viewStatus').value = employee.status ? employee.status : "N/A";
+
+            document.getElementById('viewStatusDropdown').textContent = employee.status;
+            document.getElementById('viewStatusInput').value = employee.status;
+    
+            const viewModal = new bootstrap.Modal(document.getElementById('viewModifyModal'));
+            viewModal.show();
+
+        }catch( error ){
+            console.error("Error loading employee data:", error);
+            alert("Failed to load employee data.");
+        }
+    }
+
+    function rebindRowClickEvents() {
+        document.querySelectorAll('table tbody tr').forEach((row) => {
+            const employeeId = row.getAttribute('data-employee-id');
+            const firstCell = row.querySelector('td:first-child');
+            
+            if (firstCell && employeeId) {
+                firstCell.style.cursor = 'pointer';
+                firstCell.onclick = function(){
+                    loadEmployeeData(employeeId); 
+                };
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('employeeForm');
+        const modal = new bootstrap.Modal(document.getElementById('formModal'));
+
+        const editButton = document.getElementById("editButton")
+        const saveButton = document.getElementById("saveButton")
+        const viewModifyForm = document.getElementById('viewModifyForm');
+
+        const navbarSearchForm = document.getElementById('navbarSearchForm');
+        const navbarSearchInput = document.getElementById('navbarSearchInput');
+        const logoutButton = document.getElementById('logoutButton');
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const response = await fetch(`${SERVER_URL}/users/logout`, {
+                        method: 'GET', 
+                        credentials: 'include' 
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.redirectTo) {
+                        alert(result.message || "Logout successful!");
+                        window.location.href = result.redirectTo; 
+                    } else {
+                        alert(`Logout failed: ${result.message || "Unknown error"}`);
+                    }
+                } catch (error) {
+                    console.error("Logout fetch error:", error);
+                    alert("Network error during logout.");
+                }
+            });
+        }
+
+        if (navbarSearchForm) {
+        navbarSearchForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+            const keyword = navbarSearchInput.value.trim();
+            
+            if (keyword) {
+                await searchEmployees(keyword);
+            } else {
+                alert("write keyword");
+            }
+        });
+    }
+
+        if(editButton && saveButton && viewModifyForm){
+            editButton.addEventListener("click", ()=>{
+                const fields = viewModifyForm.querySelectorAll('input:not([type="hidden"])')
+                fields.forEach(field => {
+                    field.removeAttribute("readonly");
+                });
+                editButton.classList.add('d-none');
+                deleteButton.classList.add('d-none'); 
+                saveButton.classList.remove('d-none');
+
+            })
+        }
+
+        if (viewModifyForm) {
+            viewModifyForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const employeeId = document.getElementById("employeeId").value;
+
+                const formData = new FormData(viewModifyForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const res = await fetch(`${SERVER_URL}/emp/${employeeId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await res.json();
+                    if (res.ok) {
+                        alert("Successfully updated!");
+                        window.location.reload();
+                    } else {
+                        alert(result.message || "Update failed.");
+                    }
+                } catch (error) {
+                    console.error("Update Error:", error);
+                    alert("Network error during update.");
+                }
+            });
+        }
+
+
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const res = await fetch("http://localhost:3700/emp/add", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await res.json();
+
+                    if (res.ok && result.redirectTo) {
+                        modal.hide();
+                        window.location.href = result.redirectTo; 
+                    } else if (res.ok) {
+                        modal.hide();
+                        alert(result.message || "Employee successfully added! (No redirect path specified)");
+                        window.location.reload(); 
+                    } else {
+                        alert(`Submission Failed: ${result.message || "Unknown error"}`);
+                    }
+                } catch (error) {
+                    console.error("Fetch Error:", error);
+                    alert("A network error occurred. Check server status.");
+                }
+            });
+        }
+        
+        rebindRowClickEvents();
+        
+        const viewModifyModalElement = document.getElementById('viewModifyModal');
+        if (viewModifyModalElement && typeof jQuery !== 'undefined') {
+            viewModifyModalElement.addEventListener('shown.bs.modal', function () {
+            console.log("Modal shown: Initializing View Datepickers.");
+            
+            const viewOptions = {
+                format: "yyyy-mm-dd",
+                autoclose: true,
+                todayHighlight: true,
+                container: '#viewModifyModal' 
+            };
+            
+            //$("#viewDobPicker").datepicker(viewOptions);
+            //$("#viewStartDatePicker").datepicker(viewOptions);
+        });
+    }   
+
+        
+    });
+
+    document.querySelectorAll('#viewModifyModal .dropdown-item').forEach(item => {
+        item.addEventListener("click", function (e) {
+            e.preventDefault();
+            const selected = this.getAttribute("data-value");
+
+            document.getElementById("viewStatusDropdown").textContent = selected;
+            document.getElementById("viewStatusInput").value = selected;
+        });
+    });
+
+
+    window.addEventListener('load', function() {
+        console.log("jQuery",jQuery)
+        if (typeof jQuery !== 'undefined') {
+            const datepickerOptions = {
+                format: "yyyy-mm-dd",
+                autoclose: true,
+                todayHighlight: true,
+                //container: '#formModal' 
+            };
+
+            $("#dobPicker").datepicker(datepickerOptions);
+            $("#startDatePicker").datepicker(datepickerOptions);
+
+            
+        } else {
+            console.error("jQuery is not loaded.");
+        }
+
+    });
+
+
+    window.onload = async function() {
+        try{
+            const res = await fetch(`${SERVER_URL}/emp/list`);
+            if(res.ok){
+                const result = await res.json();
+                employeesData = result.data || [];
+                totalPages = Math.ceil(employeesData.length / employeesPerPage);
+                renderTable(1);
+                renderPagination();
+                
+            }else{
+                console.error("Failed to fetch employees:", res.status);
+            }
+            loadCurrentUser()
+        }catch(e){
+            console.error("Error fetching employees:", e);
+        }
+    };
+
+    // delete
+
+    async function EmployeeDelete(employeeId){
+        if(!confirm(`Are you sure delete your employee id?`)){
+            return
+        }
+
+        try {
+            const res = await fetch(`${SERVER_URL}/emp/${employeeId}`, {
+                method : "DELETE"
+            })
+
+            const result = await res.json();
+            const viewModalElement = document.getElementById("viewModifyModal")
+            const viewModal = bootstrap.Modal.getInstance(viewModalElement);
+
+            if(res.ok){
+                viewModal.hide()
+                alert(result.message || "success delete")
+                window.location.reload()
+            }else{
+                alert(`${result.message}` )
+            }
+
+        }catch(error){  
+            alert("Delete Fetch Error:", error);
+        }
+    }
+
+    const deleteButton = document.getElementById('deleteButton');
+
+    if(deleteButton){
+        deleteButton.addEventListener("click", function(){
+            const employeeIdToDelete = document.getElementById('employeeId').value;
+            if(employeeIdToDelete){
+                EmployeeDelete(employeeIdToDelete)
+            }else{
+                alert("Employee not founded")
+            }
+        })
+    }
+
+    async function searchEmployees(keyword) {
+    try {
+        const res = await fetch(`${SERVER_URL}/emp/search?keyword=${encodeURIComponent(keyword)}`);
+        
+        if (res.ok) {
+            const result = await res.json();
+            
+            const tbody = document.querySelector('table tbody');
+            if (tbody) {
+                let newHtml = '';
+                if (result.data.length === 0) {
+                    newHtml = '<tr><td colspan="8" class="text-center">Employee not found.</td></tr>';
+                } else {
+                    newHtml = result.data.map(employee => `
+                        <tr data-employee-id="${employee.employeeNumber}">
+                            <td>${employee.firstName} ${employee.middleName} ${employee.lastName}</td>
+                            <td>${employee.dateOfbirth}</td>
+                            <td>${employee.email}</td>
+                            <td>${employee.phoneNumber}</td>
+                            <td>${employee.startDate}</td>
+                            <td>${employee.position || 'N/A'}</td> 
+                            <td>${employee.department || 'N/A' }</td>
+                            <td>
+                                <div class="badge p-2 ${employee.status === 'Employed' ? 'badge-success' : 'badge-danger'}">
+                                    ${employee.status || 'N/A'}
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                    
+                }
+                
+                tbody.innerHTML = newHtml;
+                rebindRowClickEvents();
+            }
+        } else {
+            const errorResult = await res.json();
+            alert(`search failed: ${errorResult.message}`);
+        }
+    } catch (error) {
+        console.error("Search Fetch Error:", error);
+        alert("Search Fetch Error:",error);
+    }
+}
+
+    async function loadCurrentUser() {
+        
+        try {
+            const response = await fetch(`${SERVER_URL}/users/me`, {
+                credentials: 'include' 
+            });
+        
+            if (!response.ok) {
+                throw new Error(`Failed to fetch user: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const user = result.data; 
+            //alert("result", result)    
+            const name = user.firstname + " " + user.lastname || "Unknown User";
+            let role = user.role || "User";
+
+            if (name.toLowerCase() === "dueon han") {
+                role = "Administrator";
+            }
+            //alert("name", name)
+            document.getElementById("profileName").textContent = name;
+            document.getElementById("profileDesignation").textContent = role;
+            console.log("name", name)
+        } catch (error) {
+            console.error("Error loading current user:", error);
+        }
+    }
+
+</script>
+</Layout>

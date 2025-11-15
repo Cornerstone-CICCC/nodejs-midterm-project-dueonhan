@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro"
+
+const PageTitle = "Forgot Password" 
+
+---
+
+<Layout title={PageTitle}>
+    <main class="login-tontainer">
+        <div class="bgi">
+            <div class="overlay"></div>
+            <form action="/forgot-password-request" method="POST" class="login-form">
+                <h2>Forgot Password?</h2> 
+                <p>Enter your User ID to reset your password.</p> 
+
+                <div class="form-group">
+                    <label for="email_or_userid">User ID</label>
+                    <input
+                    type="text"
+                    id="email_or_userid"
+                    name="email_or_userid"
+                    required
+                    placeholder="Enter User ID"
+                    />
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    Send Reset Link
+                </button> 
+                <a href="/login" class="sighup-btn" style="margin-top: 10px;">
+                    Back to Login
+                </a>
+            </form>
+        </div>
+    </main>
+</Layout>
